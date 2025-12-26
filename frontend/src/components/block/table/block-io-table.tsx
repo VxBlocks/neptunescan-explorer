@@ -12,13 +12,7 @@ export default function BlockIOTable() {
   const hasOutputs = rpcBlock.outputs && rpcBlock.outputs.length > 0;
   const hasGuesserFees = rpcBlock.guesser_fee_utxo_digests && rpcBlock.guesser_fee_utxo_digests.length > 0;
 
-  // Create a set for quick lookup of guesser fee UTXOs
-  const guesserFeeSet = new Set(rpcBlock.guesser_fee_utxo_digests || []);
-
-  // Separate coinbase outputs from guesser fee outputs
-  const coinbaseOutputs = rpcBlock.outputs?.filter(output => !guesserFeeSet.has(output)) || [];
-
-  if (!hasOutputs && !hasGuesserFees) return null;
+  if (!hasInputs && !hasOutputs && !hasGuesserFees) return null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -49,16 +43,16 @@ export default function BlockIOTable() {
             )}
           </CardContent>
         </Card>
-        {coinbaseOutputs.length > 0 && (
+        {rpcBlock.outputs.length > 0 && (
           <Card className="shadow-sm border-muted">
             <CardHeader className="bg-muted/30 pb-4">
               <CardTitle className="text-lg font-bold">
-                Coinbase UTXOs ({coinbaseOutputs.length})
+                Output UTXOs ({rpcBlock.outputs.length})
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
               <div className="flex flex-col gap-2">
-                {coinbaseOutputs.map((output, index) => (
+                {rpcBlock.outputs.map((output, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between gap-2 p-2 bg-muted/20 rounded border"
