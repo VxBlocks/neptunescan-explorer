@@ -1,4 +1,5 @@
 import NetworkContent from "../home/network-content";
+import HeaderSearch from "./header-search";
 import React from "react";
 
 export default function ExploreHeader({
@@ -8,11 +9,9 @@ export default function ExploreHeader({
 }) {
   return (
     <>
-      <div className="hidden sm:flex flex-row justify-between w-full px-[30px] flex-nowrap my-[10px]">
-        <div className="flex"></div>
-        <div className="flex flex-row gap-4">
-          <NetworkContent />
-        </div>
+      <div className="hidden sm:flex sm:justify-end flex-row w-full px-[30px] flex-nowrap my-[10px] gap-4">
+        <HeaderSearch />
+        <NetworkContent />
       </div>
       {children}
     </>

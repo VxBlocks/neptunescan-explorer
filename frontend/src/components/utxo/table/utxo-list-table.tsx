@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
+import NavTextLink from "@/components/base/nav-text-link";
 
 const FormattedNumber = ({ value }: { value: number | string | undefined }) => {
   if (value === undefined || value === null) return null;
@@ -69,7 +70,9 @@ export default function UtxoListTable() {
                         <FormattedNumber value={element.id} />
                       </TableCell>
                       <TableCell className="text-center">
-                        {element?.digest}
+                        <NavTextLink href={`/utxo/${element.digest}`}>
+                          {element?.digest}
+                        </NavTextLink>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -96,9 +99,9 @@ export default function UtxoListTable() {
                       <div className="flex flex-row gap-4 items-start break-all">
                         <span className="w-20 font-medium">Digest:</span>
                         <div className="w-full min-w-[140px] break-all">
-                          <span className="text-sm text-muted-foreground">
+                          <NavTextLink href={`/utxo/${item.digest}`}>
                             {item.digest}
-                          </span>
+                          </NavTextLink>
                         </div>
                       </div>
                     </div>

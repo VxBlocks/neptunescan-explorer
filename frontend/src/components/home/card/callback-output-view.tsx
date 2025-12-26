@@ -23,7 +23,7 @@ export default function CallbackOutputView({
           <div
             className={`flex flex-row justify-between items-center ${styles.block_result} cursor-pointer`}
             onClick={() => {
-              router.push(`/block?h=${outputResponse.height}`);
+              router.push(`/block/${outputResponse.height}`);
             }}
           >
             <div className="flex flex-row items-center gap-2">
@@ -61,7 +61,7 @@ export default function CallbackOutputView({
           <div
             className={`flex flex-row justify-between items-center ${styles.block_result} cursor-pointer`}
             onClick={() => {
-              router.push(`/block?h=${outputResponse.height}`);
+              router.push(`/block/${outputResponse.height}`);
             }}
           >
             <div className="flex flex-row items-center gap-2">

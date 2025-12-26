@@ -167,6 +167,36 @@ paths:
                   - utxos
           headers: {}
       security: []
+  /utxo/{digest}:
+    get:
+      summary: getUtxoByDigest
+      deprecated: false
+      description: 'Get UTXO details by digest'
+      tags: []
+      parameters:
+        - name: digest
+          in: path
+          description: 'UTXO digest'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  utxo:
+                    $ref: '#/components/schemas/UtxoDetail'
+                required:
+                  - success
+                  - utxo
+          headers: {}
+      security: []
   /block/mempool:
     get:
       summary: WatchMempool
@@ -611,6 +641,9 @@ paths:
                   input: &ref_3
                     $ref: '#/components/schemas/txo'
                   output: *ref_3
+                  utxo:
+                    type: string
+                    description: UTXO digest
           headers: {}
       security: []
 components:
@@ -744,6 +777,30 @@ components:
       required:
         - id
         - digest
+    UtxoDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        digest:
+          type: string
+        height:
+          type: integer
+          format: int64
+        block_hash:
+          type: string
+        time:
+          type: string
+          format: date-time
+        in_mempool:
+          type: boolean
+        txid:
+          type: string
+        is_guesser_fee:
+          type: boolean
+      required:
+        - in_mempool
     transaction:
       type: object
       properties:

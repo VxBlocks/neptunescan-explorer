@@ -35,7 +35,7 @@ export default function LatestBlocksTable() {
                     <Box size={18} />
                     <NavTextLink
                       style={{ fontSize: "18px" }}
-                      href={`/block?h=${item.block}`}
+                      href={`/block/${item.block}`}
                     >
                       {numberConverTo(item.block)}
                     </NavTextLink>

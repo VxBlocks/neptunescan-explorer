@@ -71,7 +71,7 @@ export default function TxDetailInfoTable() {
                   <div className="flex items-center gap-2">
                     <Box className="h-4 w-4 text-muted-foreground" />
                     <NavTextLink
-                      href={`/block?h=${txDetail.height}`}
+                      href={`/block/${txDetail.height}`}
                       className="text-[rgb(59,64,167)] font-medium hover:underline"
                     >
                       <FormattedNumber value={txDetail.height} />
@@ -160,12 +160,12 @@ export default function TxDetailInfoTable() {
                       key={index}
                       className="flex items-center justify-between text-sm p-2 bg-background rounded border shadow-sm"
                     >
-                      <span
+                      <NavTextLink
+                        href={`/utxo/${output}`}
                         className="font-mono truncate max-w-[200px] sm:max-w-full"
-                        title={output}
                       >
                         {output}
-                      </span>
+                      </NavTextLink>
                       <CopyButton value={output} className="h-6 w-6" />
                     </div>
                   ))}

@@ -36,6 +36,7 @@ type Block struct {
 	NumOutputs             int            `json:"num_outputs"`
 	Inputs                 pq.StringArray `json:"inputs" gorm:"-"`
 	Outputs                pq.StringArray `json:"outputs" gorm:"-"`
+	GuesserFeeUtxoDigests  pq.StringArray `json:"guesser_fee_utxo_digests" gorm:"-"`
 	NumPublicAnnouncements int            `json:"num_public_announcements"`
 	CoinbaseAmount         types.Big      `json:"coinbase_amount" gorm:"type:numeric"`
 	Fee                    types.Big      `json:"fee" gorm:"type:numeric"`
@@ -55,10 +56,11 @@ func (Inputs) TableName() string {
 }
 
 type Outputs struct {
-	Id          string `json:"id" gorm:"primaryKey"`
-	Height      int64  `json:"height" gorm:"index"`
-	BlockDigest string `json:"block_digest" gorm:"index"`
-	Txid        string `json:"txid" gorm:"index"`
+	Id           string `json:"id" gorm:"primaryKey"`
+	Height       int64  `json:"height" gorm:"index"`
+	BlockDigest  string `json:"block_digest" gorm:"index"`
+	Txid         string `json:"txid" gorm:"index"`
+	IsGuesserFee bool   `json:"is_guesser_fee"`
 }
 
 func (Outputs) TableName() string {
@@ -106,6 +108,7 @@ func BlockFromRpcType(rpcBlock *RPCBlock) *Block {
 		NumOutputs:             rpcBlock.NumOutputs,
 		Inputs:                 rpcBlock.Inputs,
 		Outputs:                rpcBlock.Outputs,
+		GuesserFeeUtxoDigests:  rpcBlock.GuesserFeeUtxoDigests,
 		NumPublicAnnouncements: rpcBlock.NumPublicAnnouncements,
 		CoinbaseAmount:         types.NewBigInt(rpcBlock.CoinbaseAmount.Rsh(rpcBlock.CoinbaseAmount, 2)),
 		Fee:                    types.NewBigInt(rpcBlock.Fee.Rsh(rpcBlock.Fee, 2)),
@@ -268,20 +271,46 @@ func (b *BlockDataSource) Save(ctx context.Context) error {
 		var outputs = make([]Outputs, len(b.Block.Outputs))
 		for i, v := range b.Block.Outputs {
 			outputs[i] = Outputs{
-				Id:          v,
-				Height:      b.Block.Height,
-				BlockDigest: b.Block.Digest,
-				Txid:        "",
+				Id:           v,
+				Height:       b.Block.Height,
+				BlockDigest:  b.Block.Digest,
+				Txid:         "",
+				IsGuesserFee: false,
 			}
 		}
 		if err := tx.GetTxTypedDB(ctx, &Outputs{}).Clauses(clause.OnConflict{
 			Columns: []clause.Column{{Name: "id"}},
 			DoUpdates: clause.Assignments(map[string]any{
-				"height":       b.Block.Height,
-				"block_digest": b.Block.Digest,
+				"height":         b.Block.Height,
+				"block_digest":   b.Block.Digest,
+				"is_guesser_fee": false,
 			}),
 		}).CreateInBatches(outputs, 1).Error; err != nil {
 			return fmt.Errorf("failed to create outputs: %w", err)
+		}
+	}
+
+	// Save guesser fee UTXOs
+	if len(b.Block.GuesserFeeUtxoDigests) != 0 {
+		var guesserOutputs = make([]Outputs, len(b.Block.GuesserFeeUtxoDigests))
+		for i, v := range b.Block.GuesserFeeUtxoDigests {
+			guesserOutputs[i] = Outputs{
+				Id:           v,
+				Height:       b.Block.Height,
+				BlockDigest:  b.Block.Digest,
+				Txid:         "",
+				IsGuesserFee: true,
+			}
+		}
+		if err := tx.GetTxTypedDB(ctx, &Outputs{}).Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "id"}},
+			DoUpdates: clause.Assignments(map[string]any{
+				"height":         b.Block.Height,
+				"block_digest":   b.Block.Digest,
+				"is_guesser_fee": true,
+			}),
+		}).CreateInBatches(guesserOutputs, 1).Error; err != nil {
+			return fmt.Errorf("failed to create guesser fee outputs: %w", err)
 		}
 	}
 

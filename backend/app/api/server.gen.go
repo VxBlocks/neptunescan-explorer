@@ -43,6 +43,18 @@ const (
 	Week  GetTrendTargetParamsDuration = "week"
 )
 
+// UtxoDetail defines model for UtxoDetail.
+type UtxoDetail struct {
+	BlockHash    *string    `json:"block_hash,omitempty"`
+	Digest       *string    `json:"digest,omitempty"`
+	Height       *int64     `json:"height,omitempty"`
+	Id           *int64     `json:"id,omitempty"`
+	InMempool    bool       `json:"in_mempool"`
+	IsGuesserFee *bool      `json:"is_guesser_fee,omitempty"`
+	Time         *time.Time `json:"time,omitempty"`
+	Txid         *string    `json:"txid,omitempty"`
+}
+
 // UtxoDigest defines model for UtxoDigest.
 type UtxoDigest struct {
 	Digest string `json:"digest"`
@@ -243,6 +255,9 @@ type ServerInterface interface {
 	// utxolist
 	// (GET /utxo/list)
 	GetUtxoList(c *gin.Context, params GetUtxoListParams)
+	// getUtxoByDigest
+	// (GET /utxo/{digest})
+	GetUtxoDigest(c *gin.Context, digest string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -732,6 +747,30 @@ func (siw *ServerInterfaceWrapper) GetUtxoList(c *gin.Context) {
 	siw.Handler.GetUtxoList(c, params)
 }
 
+// GetUtxoDigest operation middleware
+func (siw *ServerInterfaceWrapper) GetUtxoDigest(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "digest" -------------
+	var digest string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "digest", c.Param("digest"), &digest, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter digest: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetUtxoDigest(c, digest)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -776,6 +815,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/tx/list", wrapper.GetTxList)
 	router.GET(options.BaseURL+"/tx/:txid", wrapper.GetTxTxid)
 	router.GET(options.BaseURL+"/utxo/list", wrapper.GetUtxoList)
+	router.GET(options.BaseURL+"/utxo/:digest", wrapper.GetUtxoDigest)
 }
 
 type GetBlockEventRequestObject struct {
@@ -972,6 +1012,9 @@ type GetSearch200JSONResponse struct {
 	Input       *Txo                 `json:"input,omitempty"`
 	Output      *Txo                 `json:"output,omitempty"`
 	Transaction *TransactionListItem `json:"transaction,omitempty"`
+
+	// Utxo UTXO digest
+	Utxo *string `json:"utxo,omitempty"`
 }
 
 func (response GetSearch200JSONResponse) VisitGetSearchResponse(w http.ResponseWriter) error {
@@ -1150,6 +1193,26 @@ func (response GetUtxoList200JSONResponse) VisitGetUtxoListResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetUtxoDigestRequestObject struct {
+	Digest string `json:"digest"`
+}
+
+type GetUtxoDigestResponseObject interface {
+	VisitGetUtxoDigestResponse(w http.ResponseWriter) error
+}
+
+type GetUtxoDigest200JSONResponse struct {
+	Success bool       `json:"success"`
+	Utxo    UtxoDetail `json:"utxo"`
+}
+
+func (response GetUtxoDigest200JSONResponse) VisitGetUtxoDigestResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// WatchBlock
@@ -1203,6 +1266,9 @@ type StrictServerInterface interface {
 	// utxolist
 	// (GET /utxo/list)
 	GetUtxoList(ctx context.Context, request GetUtxoListRequestObject) (GetUtxoListResponseObject, error)
+	// getUtxoByDigest
+	// (GET /utxo/{digest})
+	GetUtxoDigest(ctx context.Context, request GetUtxoDigestRequestObject) (GetUtxoDigestResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -1659,6 +1725,33 @@ func (sh *strictHandler) GetUtxoList(ctx *gin.Context, params GetUtxoListParams)
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(GetUtxoListResponseObject); ok {
 		if err := validResponse.VisitGetUtxoListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetUtxoDigest operation middleware
+func (sh *strictHandler) GetUtxoDigest(ctx *gin.Context, digest string) {
+	var request GetUtxoDigestRequestObject
+
+	request.Digest = digest
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetUtxoDigest(ctx, request.(GetUtxoDigestRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetUtxoDigest")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetUtxoDigestResponseObject); ok {
+		if err := validResponse.VisitGetUtxoDigestResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

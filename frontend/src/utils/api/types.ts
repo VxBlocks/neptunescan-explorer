@@ -19,6 +19,7 @@ export interface RpcBlock {
     num_outputs: number;
     inputs: string[];
     outputs: string[];
+    guesser_fee_utxo_digests: string[];
     num_public_announcements: number;
     coinbase_amount: string;
     fee: string;

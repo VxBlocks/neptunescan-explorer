@@ -2,8 +2,11 @@ package api
 
 import (
 	"context"
+	"errors"
 	"models"
 	"timescale"
+
+	"gorm.io/gorm"
 )
 
 // GetUtxoList implements StrictServerInterface.
@@ -77,5 +80,70 @@ func (s *Server) GetTxTxid(ctx context.Context, request GetTxTxidRequestObject) 
 	return GetTxTxid200JSONResponse{
 		Success: true,
 		Tx:      tx,
+	}, nil
+}
+
+// GetUtxoDigest implements StrictServerInterface.
+func (s *Server) GetUtxoDigest(ctx context.Context, request GetUtxoDigestRequestObject) (GetUtxoDigestResponseObject, error) {
+	// First, find the output record (this contains block info)
+	var output models.Outputs
+	if err := timescale.GetPostgresGormTypedDB(ctx, &models.Outputs{}).
+		Where("id = ?", request.Digest).
+		Take(&output).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("UTXO not found")
+		}
+		return nil, err
+	}
+
+	// Get the UTXO id from utxo_digest table if available
+	var utxoId int64
+	timescale.GetPostgresGormTypedDB(ctx, &models.UtxoDigest{}).
+		Where("digest = ?", request.Digest).
+		Pluck("id", &utxoId)
+
+	var result UtxoDetail
+	if utxoId != 0 {
+		result.Id = &utxoId
+	}
+	result.Digest = &request.Digest
+	result.Txid = &output.Txid
+
+	// Check if this is a pending/mempool UTXO (no block yet)
+	if output.BlockDigest == "" || output.Height == 0 {
+		result.InMempool = true
+		// Height and BlockHash will be nil (omitted)
+
+		// Get time from the mempool transaction if available
+		if output.Txid != "" {
+			var tx models.MemPoolTransaction
+			if err := timescale.GetPostgresGormTypedDB(ctx, &models.MemPoolTransaction{}).
+				Where("id = ?", output.Txid).
+				Take(&tx).Error; err == nil {
+				result.Time = &tx.Time
+			}
+		}
+	} else {
+		// Get block info for confirmed UTXO
+		var block models.Block
+		if err := timescale.GetPostgresGormTypedDB(ctx, &models.Block{}).
+			Where("digest = ?", output.BlockDigest).
+			Take(&block).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("Block not found")
+			}
+			return nil, err
+		}
+
+		result.Height = &block.Height
+		result.BlockHash = &block.Digest
+		result.Time = &block.Time
+		result.InMempool = false
+		result.IsGuesserFee = &output.IsGuesserFee
+	}
+
+	return GetUtxoDigest200JSONResponse{
+		Success: true,
+		Utxo:    result,
 	}, nil
 }

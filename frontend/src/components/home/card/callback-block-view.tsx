@@ -24,7 +24,7 @@ export default function CallbackBlockView({
         <div
           className={`hidden sm:flex flex-row justify-between items-center ${styles.block_result} cursor-pointer`}
           onClick={() => {
-            router.push(`/block?h=${blockResponse.block_hash}`);
+            router.push(`/block/${blockResponse.block}`);
           }}
         >
           <div className="flex flex-row items-center gap-2">
@@ -50,7 +50,7 @@ export default function CallbackBlockView({
               <Box size={18} />
               <NavTextLink
                 style={{ fontSize: "18px" }}
-                href={`/block?h=${blockResponse.block}`}
+                href={`/block/${blockResponse.block}`}
               >
                 <FormattedNumber value={blockResponse.block} />
               </NavTextLink>
