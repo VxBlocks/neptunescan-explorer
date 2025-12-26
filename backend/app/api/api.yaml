@@ -797,10 +797,10 @@ components:
           type: boolean
         txid:
           type: string
+        is_guesser_fee:
+          type: boolean
       required:
-        - time
         - in_mempool
-        - txid
     transaction:
       type: object
       properties:

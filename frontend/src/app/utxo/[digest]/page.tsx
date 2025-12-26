@@ -18,9 +18,10 @@ interface UtxoDetail {
   digest?: string;
   height?: number;
   block_hash?: string;
-  time: string;
+  time?: string;
   in_mempool: boolean;
-  txid: string;
+  txid?: string;
+  is_guesser_fee?: boolean;
 }
 
 const InfoRow = ({
@@ -113,6 +114,21 @@ export default function UtxoDetailPage() {
               )}
 
               <InfoRow
+                label="Type"
+                value={
+                  utxo.is_guesser_fee ? (
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-300">
+                      Guesser Fee
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-300">
+                      Transaction
+                    </Badge>
+                  )
+                }
+              />
+
+              <InfoRow
                 label="Status"
                 value={
                   utxo.in_mempool ? (
@@ -156,10 +172,10 @@ export default function UtxoDetailPage() {
                 />
               )}
 
-              <InfoRow
-                label="Transaction"
-                value={
-                  utxo.txid ? (
+              {utxo.txid ? (
+                <InfoRow
+                  label="Transaction"
+                  value={
                     <div className="flex items-center gap-2">
                       <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
                       <NavTextLink
@@ -170,13 +186,9 @@ export default function UtxoDetailPage() {
                       </NavTextLink>
                       <CopyButton value={utxo.txid} />
                     </div>
-                  ) : (
-                    <span className="text-muted-foreground italic">
-                      Coinbase (Mining Reward)
-                    </span>
-                  )
-                }
-              />
+                  }
+                />
+              ) : null}
 
               <InfoRow
                 label="Timestamp"

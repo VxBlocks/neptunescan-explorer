@@ -39,6 +39,7 @@ type RPCBlock struct {
 	NumOutputs             int      `json:"num_outputs"`
 	Inputs                 []string `json:"inputs"`
 	Outputs                []string `json:"outputs"`
+	GuesserFeeUtxoDigests  []string `json:"guesser_fee_utxo_digests"`
 	NumPublicAnnouncements int      `json:"num_public_announcements"`
 	CoinbaseAmount         *big.Int `json:"coinbase_amount"`
 	Fee                    *big.Int `json:"fee"`

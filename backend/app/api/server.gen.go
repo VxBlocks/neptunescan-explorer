@@ -45,13 +45,14 @@ const (
 
 // UtxoDetail defines model for UtxoDetail.
 type UtxoDetail struct {
-	BlockHash *string   `json:"block_hash,omitempty"`
-	Digest    *string   `json:"digest,omitempty"`
-	Height    *int64    `json:"height,omitempty"`
-	Id        *int64    `json:"id,omitempty"`
-	InMempool bool      `json:"in_mempool"`
-	Time      time.Time `json:"time"`
-	Txid      string    `json:"txid"`
+	BlockHash    *string    `json:"block_hash,omitempty"`
+	Digest       *string    `json:"digest,omitempty"`
+	Height       *int64     `json:"height,omitempty"`
+	Id           *int64     `json:"id,omitempty"`
+	InMempool    bool       `json:"in_mempool"`
+	IsGuesserFee *bool      `json:"is_guesser_fee,omitempty"`
+	Time         *time.Time `json:"time,omitempty"`
+	Txid         *string    `json:"txid,omitempty"`
 }
 
 // UtxoDigest defines model for UtxoDigest.

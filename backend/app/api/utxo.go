@@ -107,7 +107,7 @@ func (s *Server) GetUtxoDigest(ctx context.Context, request GetUtxoDigestRequest
 		result.Id = &utxoId
 	}
 	result.Digest = &request.Digest
-	result.Txid = output.Txid
+	result.Txid = &output.Txid
 
 	// Check if this is a pending/mempool UTXO (no block yet)
 	if output.BlockDigest == "" || output.Height == 0 {
@@ -120,7 +120,7 @@ func (s *Server) GetUtxoDigest(ctx context.Context, request GetUtxoDigestRequest
 			if err := timescale.GetPostgresGormTypedDB(ctx, &models.MemPoolTransaction{}).
 				Where("id = ?", output.Txid).
 				Take(&tx).Error; err == nil {
-				result.Time = tx.Time
+				result.Time = &tx.Time
 			}
 		}
 	} else {
@@ -137,8 +137,9 @@ func (s *Server) GetUtxoDigest(ctx context.Context, request GetUtxoDigestRequest
 
 		result.Height = &block.Height
 		result.BlockHash = &block.Digest
-		result.Time = block.Time
+		result.Time = &block.Time
 		result.InMempool = false
+		result.IsGuesserFee = &output.IsGuesserFee
 	}
 
 	return GetUtxoDigest200JSONResponse{
