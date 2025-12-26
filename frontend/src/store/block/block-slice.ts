@@ -159,7 +159,7 @@ export const requestBlockListData = createAsyncThunk<
 >("/api/block/requestBlockListData", async ({ page }) => {
   const res = await queryBlocks({
     page: page - 1,
-    size: 10,
+    size: 25,
   });
   const data = res.data.blocks;
   const total = res.data.count as number;
@@ -175,7 +175,7 @@ export const requestForkListData = createAsyncThunk<
 >("/api/block/requestForkListData", async ({ page }) => {
   const res = await queryForks({
     page: page - 1,
-    size: 10,
+    size: 25,
   });
   const data = res.data.blocks;
   const total = res.data.count as number;

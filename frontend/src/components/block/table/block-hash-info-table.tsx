@@ -82,7 +82,7 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                 size="icon"
                 className="h-8 w-8"
                 disabled={rpcBlock?.height == 0}
-                onClick={() => router.push(`/block?h=${blocks.previousBlock}`)}
+                onClick={() => router.push(`/block/${blocks.previousBlock}`)}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -90,17 +90,11 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                 variant="outline"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => router.push(`/block?h=${blocks.nextBlock}`)}
+                onClick={() => router.push(`/block/${blocks.nextBlock}`)}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-          <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground bg-background px-3 py-1 rounded-full border">
-            <Clock className="h-4 w-4" />
-            <TimeClock
-              timeStamp={stringConvertToTimestamp(rpcBlock?.time ?? "")}
-            />
           </div>
         </div>
       </CardHeader>
@@ -141,7 +135,7 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                     "YYYY-MM-DD HH:mm:ss"
                   )}
                 </span>
-                <div className="flex md:hidden items-center gap-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border">
                   <Clock className="h-3 w-3" />
                   <TimeClock
                     timeStamp={stringConvertToTimestamp(rpcBlock?.time ?? "")}
@@ -170,7 +164,9 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                 <span
                   className="text-[rgb(59,64,167)] cursor-pointer hover:underline font-mono"
                   onClick={() => {
-                    router.push(`/block?h=${rpcBlock?.prev_block_digest}`);
+                    if (rpcBlock?.height && rpcBlock.height > 0) {
+                      router.push(`/block/${rpcBlock.height - 1}`);
+                    }
                   }}
                 >
                   {rpcBlock?.prev_block_digest}
@@ -229,7 +225,7 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                       <span
                         className="text-[rgb(59,64,167)] cursor-pointer hover:underline font-mono"
                         onClick={() => {
-                          router.push(`/block?h=${item}`);
+                          router.push(`/block/${item}`);
                         }}
                       >
                         {item}

@@ -77,7 +77,7 @@ export default function TransactionListTable() {
                     <TableRow key={element.id}>
                       <TableCell>
                         {element.height ? (
-                          <NavTextLink href={`/block?h=${element.height}`}>
+                          <NavTextLink href={`/block/${element.height}`}>
                             <FormattedNumber value={element.height} />
                           </NavTextLink>
                         ) : (
@@ -126,7 +126,7 @@ export default function TransactionListTable() {
                         <span className="w-[120px] font-medium">Block:</span>
                         <div className="w-full min-w-[120px]">
                           {item.height ? (
-                            <NavTextLink href={`/block?h=${item.height}`}>
+                            <NavTextLink href={`/block/${item.height}`}>
                               <FormattedNumber value={item.height} />
                             </NavTextLink>
                           ) : (

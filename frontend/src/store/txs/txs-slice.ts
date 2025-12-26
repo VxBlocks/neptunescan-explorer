@@ -102,7 +102,7 @@ export const requestAllTxs = createAsyncThunk<
 >("/api/txs/requestAllTxs", async ({ page }) => {
   const res = await queryTransactions({
     page: page - 1,
-    size: 10,
+    size: 25,
   });
   const data = res.data.txs;
   const total = res.data.count as number;

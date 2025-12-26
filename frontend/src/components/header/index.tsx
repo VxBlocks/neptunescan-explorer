@@ -11,14 +11,15 @@ import {
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import HeaderSearch from "./header-search";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between w-full px-[30px] flex-nowrap my-[10px]">
+    <div className="w-full px-4 sm:px-[30px] py-2">
+      <div className="flex justify-between items-center w-full gap-4">
         <div className="sm:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -49,9 +50,13 @@ export function Header() {
             </SheetContent>
           </Sheet>
         </div>
-        <div className="flex flex-row gap-4">
-          <NetworkContent />
+        <div className="hidden sm:block">
+          <HeaderSearch />
         </div>
+        <div className="sm:hidden w-full">
+          <HeaderSearch />
+        </div>
+        <NetworkContent />
       </div>
     </div>
   );

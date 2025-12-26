@@ -22,17 +22,17 @@ export default function HomeSearch() {
       const data = res.data;
 
       if (data.block) {
-        router.push(`/block?h=${data.block.block_hash}`);
+        router.push(`/block/${data.block.block}`);
       } else if (data.transaction) {
         router.push(`/tx?id=${data.transaction.id}`);
       } else if (data.input) {
         if (data.input.txid) router.push(`/tx?id=${data.input.txid}`);
         else if (data.input.height)
-          router.push(`/block?h=${data.input.height}`);
+          router.push(`/block/${data.input.height}`);
       } else if (data.output) {
         if (data.output.txid) router.push(`/tx?id=${data.output.txid}`);
         else if (data.output.height)
-          router.push(`/block?h=${data.output.height}`);
+          router.push(`/block/${data.output.height}`);
       } else {
         toast({
           title: "No results found",

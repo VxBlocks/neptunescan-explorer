@@ -76,7 +76,7 @@ export default function ForkListTable() {
                         <FormattedNumber value={element.block} />
                       </TableCell>
                       <TableCell className="break-all max-w-[400px]">
-                        <NavTextLink href={`/block?h=${element.block_hash}`}>
+                        <NavTextLink href={`/block/${element.block_hash}`}>
                           {element?.block_hash}
                         </NavTextLink>
                       </TableCell>
@@ -127,7 +127,7 @@ export default function ForkListTable() {
                           <span
                             className="text-sm text-muted-foreground cursor-pointer hover:underline"
                             onClick={() => {
-                              router.push(`/block?h=${item.block_hash}`);
+                              router.push(`/block/${item.block_hash}`);
                             }}
                           >
                             {item?.block_hash}

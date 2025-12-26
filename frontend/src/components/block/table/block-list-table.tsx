@@ -49,7 +49,7 @@ export default function BlockListTable() {
           <FormattedNumber value={element.block} />
         </TableCell>
         <TableCell className="break-all">
-          <NavTextLink href={`/block?h=${element.block_hash}`}>
+          <NavTextLink href={`/block/${element.block}`}>
             {element?.block_hash}
           </NavTextLink>
         </TableCell>
@@ -128,7 +128,7 @@ export default function BlockListTable() {
                           <span
                             className="text-sm text-muted-foreground cursor-pointer hover:underline"
                             onClick={() => {
-                              router.push(`/block?h=${item.block_hash}`);
+                              router.push(`/block/${item.block}`);
                             }}
                           >
                             {item?.block_hash}

@@ -71,7 +71,7 @@ export const requestAllUtxos = createAsyncThunk<
     async ({ page }) => {
         const res = await queryUtxoList({
             page: page - 1,
-            size: 10
+            size: 25
         });
         const data = res.data.utxos;
         const total = res.data.count as number; 

@@ -56,6 +56,14 @@ func (s *Server) GetSearch(ctx context.Context, request GetSearchRequestObject) 
 				Input: &txo,
 			}, nil
 		}
+
+		// Check if it's a UTXO (exists in outputs table)
+		var outputId string
+		if err := timescale.GetPostgresGormTypedDB(ctx, &models.Outputs{}).Where("id = ?", *request.Params.Q).Pluck("id", &outputId).Error; err == nil && outputId != "" {
+			return GetSearch200JSONResponse{
+				Utxo: &outputId,
+			}, nil
+		}
 	}
 
 	return GetSearch200JSONResponse{}, nil

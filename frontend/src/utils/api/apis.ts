@@ -198,4 +198,15 @@ export const querySearchApi = ({
         }
     }
     );
+}
+
+export const queryUtxoDetail = ({
+    digest,
+}: {
+    digest: string,
+}) => {
+    return service({
+        url: url(`/api/utxo/${digest}`),
+        method: "GET",
+    });
 } 
