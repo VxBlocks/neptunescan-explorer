@@ -1,7 +1,7 @@
 import { getMinerConfigByID } from "@/config/miner-config";
 import Link from "next/link";
 
-export default function MinerLabel({ minerID }: { minerID: string }) {
+export default function MinerLabel({ minerID, enableLink = true }: { minerID: string; enableLink?: boolean }) {
     const minerConfig = getMinerConfigByID(minerID);
 
     if (!minerConfig) {
@@ -22,7 +22,7 @@ export default function MinerLabel({ minerID }: { minerID: string }) {
         </span>
     );
 
-    if (minerConfig.website) {
+    if (enableLink && minerConfig.website) {
         return (
             <Link
                 href={minerConfig.website}

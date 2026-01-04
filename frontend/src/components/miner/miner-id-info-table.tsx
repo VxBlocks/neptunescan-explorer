@@ -49,7 +49,7 @@ export default function MinerIdInfoTable({ minerID }: { minerID: string }) {
         {
           loading ? <LoadingOverlay visible={loading} /> : minerStatData ? <div className="flex flex-col">
             <InfoRow
-              label="Miner"
+              label="Miner ID"
               value={
                 <div className="flex items-center gap-2">
                   <MinerLabel minerID={minerID} />

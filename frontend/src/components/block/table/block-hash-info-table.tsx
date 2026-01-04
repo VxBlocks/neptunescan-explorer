@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
+import { getMinerConfigByID } from "@/config/miner-config";
 
 const FormattedNumber = ({ value }: { value: number | string | undefined }) => {
   if (value === undefined || value === null) return null;
@@ -185,9 +186,24 @@ export default function BlockHashInfoTable({ hash }: { hash: string }) {
                     }
                   }}
                 >
-                  {rpcBlock?.guesser_digest}
+                  {(() => {
+                    let minerConfig = getMinerConfigByID(rpcBlock?.guesser_digest ?? "");
+                    let name = minerConfig ? minerConfig.name : rpcBlock?.guesser_digest;
+                    return (
+                      <span className="inline-flex items-center gap-2">
+                        {minerConfig ? (
+                          <img
+                            src={minerConfig.iconURL}
+                            alt={minerConfig.name}
+                            className="h-5 w-5 rounded-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : null}
+                        <span className="font-mono">{name}</span>
+                      </span>
+                    );
+                  })()}
                 </span>
-                <CopyButton value={rpcBlock?.guesser_digest ?? ""} />
               </div>
             }
           />
