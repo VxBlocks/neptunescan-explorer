@@ -10,6 +10,12 @@ export const MINER_CONFIG = [
         iconURL: "https://drpool.io/logo.jpg",
         name: "DRPool",
         website: "https://drpool.io/",
+    },
+    {
+        minerID: "0b336f2f6e2dd470f79b66df0fb1291b6099b614982d0c7dec5611d6940250550e2e5f7fb1f742ce",
+        iconURL: "https://minerlab.io/favicon.ico",
+        name: "MinerLab",
+        website: "https://xnt.minerlab.io/",
     }
 ] 
 
